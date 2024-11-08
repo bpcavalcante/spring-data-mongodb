@@ -14,4 +14,14 @@ public interface ArtigoService {
 
   public List<Artigo> findByDataGreaterThan(LocalDateTime data);
 
+  public List<Artigo> findByDataAndStatus(LocalDateTime data, Integer status);
+
+  public void atualizar(Artigo updateArtigo);
+
+  public void atualizarArtigo(String id, String novaUrl);
+
+  public void deleteById(String id);
+
+  public void deleteArtigoById(String id);
+
 }
