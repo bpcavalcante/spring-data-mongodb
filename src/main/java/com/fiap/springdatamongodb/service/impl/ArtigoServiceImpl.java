@@ -101,4 +101,9 @@ public class ArtigoServiceImpl implements ArtigoService {
     mongoTemplate.remove(query, Artigo.class);
   }
 
+  @Override
+  public List<Artigo> findByStatusAndDataGreaterThan(Integer status, LocalDateTime data) {
+    return artigoRepository.findByStatusAndDataGreaterThan(status, data);
+  }
+
 }
