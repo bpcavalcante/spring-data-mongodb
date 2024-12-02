@@ -5,29 +5,29 @@ services:
     image: mongo:latest
     container_name: mongodb_container
     ports:
-      - "27018:27017"
+      - "27018:27017" # Porta local 27018 mapeada para a porta 27017 no contêiner
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
     volumes:
       - mongodb_data:/data/db
-      - ./init-scripts:/docker-entrypoint-initdb.
+      - ./init-scripts:/docker-entrypoint-initdb.d # Corrigido o path do volume
     networks:
       - mongo-network
 
   mongosh:
     image: mongo:latest
     container_name: mongosh_container
-    command: mongosh
+    command: mongosh "mongodb://root:example@mongodb:27017" # Conexão ao MongoDB via hostname
     depends_on:
       - mongodb
     stdin_open: true
     tty: true
-    links:
-      - mongodb
+    networks: # Use a mesma rede do serviço mongodb
+      - mongo-network
 
 volumes:
-  mongodb_data:
+  mongodb_data: # Volume persistente para dados do MongoDB
 
 networks:
-  mongo-network:
+  mongo-network: # Rede compartilhada entre os serviços
