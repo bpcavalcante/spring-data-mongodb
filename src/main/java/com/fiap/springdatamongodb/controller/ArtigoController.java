@@ -4,6 +4,7 @@ import com.fiap.springdatamongodb.model.Artigo;
 import com.fiap.springdatamongodb.model.ArtigoStatusCount;
 import com.fiap.springdatamongodb.model.AutorTotalArtigo;
 import com.fiap.springdatamongodb.service.ArtigoService;
+import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,7 +43,7 @@ public class ArtigoController {
   }
 
   @PutMapping("/atualiza-artigo/{id}")
-  public ResponseEntity<?> atualizarArtigo(@PathVariable("id") String id, @RequestBody Artigo artigo) {
+  public ResponseEntity<?> atualizarArtigo(@PathVariable("id") String id, @Valid @RequestBody Artigo artigo) {
     return artigoService.atualizarArtigo(id,artigo);
   }
 
