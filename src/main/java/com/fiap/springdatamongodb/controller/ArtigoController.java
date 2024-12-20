@@ -37,10 +37,10 @@ public class ArtigoController {
     return artigoService.criar(artigo);
   }*/
 
-  @PostMapping
-  public ResponseEntity<?> criar(@RequestBody Artigo artigo) {
-    return artigoService.criar(artigo);
-  }
+//  @PostMapping
+//  public ResponseEntity<?> criar(@RequestBody Artigo artigo) {
+//    return artigoService.criar(artigo);
+//  }
 
   @PutMapping("/atualiza-artigo/{id}")
   public ResponseEntity<?> atualizarArtigo(@PathVariable("id") String id, @Valid @RequestBody Artigo artigo) {

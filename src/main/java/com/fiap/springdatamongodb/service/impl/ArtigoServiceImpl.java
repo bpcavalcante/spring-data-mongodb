@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -31,6 +32,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
 public class ArtigoServiceImpl implements ArtigoService {
@@ -42,6 +44,9 @@ public class ArtigoServiceImpl implements ArtigoService {
   public ArtigoServiceImpl(MongoTemplate mongoTemplate) {
     this.mongoTemplate = mongoTemplate;
   }
+
+  @Autowired
+  private MongoTransactionManager transactionManager;
 
   @Autowired
   private ArtigoRepository artigoRepository;
@@ -61,28 +66,52 @@ public class ArtigoServiceImpl implements ArtigoService {
   }
 
   @Override
-  public ResponseEntity<?> criar(Artigo artigo) {
-
-    if (artigo.getAutor().getCodigo() != null) {
-      Autor autor = autorRepository.findById(artigo.getAutor().getCodigo())
-          .orElseThrow(() -> new IllegalArgumentException("Autor nao encontrado"));
-
-      artigo.setAutor(autor);
-    } else {
-      artigo.setAutor(null);
-    }
-
-    try {
-      this.artigoRepository.save(artigo);
-      return ResponseEntity.status(HttpStatus.CREATED).build();
-    } catch (DuplicateKeyException ex) {
-      return ResponseEntity.status(HttpStatus.CONFLICT).body("Artigo já existe na coleção");
-    } catch (Exception ex) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .body("Erro ao criar artigo" + ex.getMessage());
-    }
-
+  public ResponseEntity<?> criarArtigoComAutor(Artigo artigo, Autor autor) {
+    // Quando implemento desta forma nao preciso do @Transaction
+    // Fazemos desta maneira ou eu uso o @Transaction
+    TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+    transactionTemplate.execute(
+        status -> {
+          try {
+            // Iniciar a transacao
+            autorRepository.save(autor);
+            artigo.setData(LocalDateTime.now());
+            artigo.setAutor(autor);
+            artigoRepository.save(artigo);
+          } catch (Exception e) {
+            // Trata o erro e lançar a transação de volta em caso de exceção
+            status.setRollbackOnly();
+            throw new RuntimeException("Erro ao criar artigo com autor" + e.getMessage());
+          }
+          return null;
+        }
+    );
+    return null;
   }
+
+//  @Override
+//  public ResponseEntity<?> criar(Artigo artigo) {
+//
+//    if (artigo.getAutor().getCodigo() != null) {
+//      Autor autor = autorRepository.findById(artigo.getAutor().getCodigo())
+//          .orElseThrow(() -> new IllegalArgumentException("Autor nao encontrado"));
+//
+//      artigo.setAutor(autor);
+//    } else {
+//      artigo.setAutor(null);
+//    }
+//
+//    try {
+//      this.artigoRepository.save(artigo);
+//      return ResponseEntity.status(HttpStatus.CREATED).build();
+//    } catch (DuplicateKeyException ex) {
+//      return ResponseEntity.status(HttpStatus.CONFLICT).body("Artigo já existe na coleção");
+//    } catch (Exception ex) {
+//      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//          .body("Erro ao criar artigo" + ex.getMessage());
+//    }
+//
+//  }
 
   @Override
   public ResponseEntity<?> atualizarArtigo(String id, Artigo artigo) {
