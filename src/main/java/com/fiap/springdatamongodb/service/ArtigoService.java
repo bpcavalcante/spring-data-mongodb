@@ -2,6 +2,7 @@ package com.fiap.springdatamongodb.service;
 
 import com.fiap.springdatamongodb.model.Artigo;
 import com.fiap.springdatamongodb.model.ArtigoStatusCount;
+import com.fiap.springdatamongodb.model.Autor;
 import com.fiap.springdatamongodb.model.AutorTotalArtigo;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,7 +21,9 @@ public interface ArtigoService {
   public Artigo criar(Artigo artigo);
 */
 
-  public ResponseEntity<?> criar(Artigo artigo);
+//  public ResponseEntity<?> criar(Artigo artigo);
+
+  public ResponseEntity<?> criarArtigoComAutor(Artigo artigo, Autor autor);
 
   public ResponseEntity<?> atualizarArtigo(String id, Artigo artigo);
 
