@@ -21,9 +21,11 @@ public interface ArtigoService {
   public Artigo criar(Artigo artigo);
 */
 
-//  public ResponseEntity<?> criar(Artigo artigo);
+  public ResponseEntity<?> criar(Artigo artigo);
 
-  public ResponseEntity<?> criarArtigoComAutor(Artigo artigo, Autor autor);
+//  public ResponseEntity<?> criarArtigoComAutor(Artigo artigo, Autor autor);
+
+//  public void excluirArtigoEAutor(Artigo artigo);
 
   public ResponseEntity<?> atualizarArtigo(String id, Artigo artigo);
 

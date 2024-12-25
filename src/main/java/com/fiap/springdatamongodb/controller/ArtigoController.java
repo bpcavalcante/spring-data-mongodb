@@ -1,7 +1,9 @@
 package com.fiap.springdatamongodb.controller;
 
 import com.fiap.springdatamongodb.model.Artigo;
+import com.fiap.springdatamongodb.model.ArtigoComAutoRequest;
 import com.fiap.springdatamongodb.model.ArtigoStatusCount;
+import com.fiap.springdatamongodb.model.Autor;
 import com.fiap.springdatamongodb.model.AutorTotalArtigo;
 import com.fiap.springdatamongodb.service.ArtigoService;
 import jakarta.validation.Valid;
@@ -37,10 +39,10 @@ public class ArtigoController {
     return artigoService.criar(artigo);
   }*/
 
-//  @PostMapping
-//  public ResponseEntity<?> criar(@RequestBody Artigo artigo) {
-//    return artigoService.criar(artigo);
-//  }
+  @PostMapping
+  public ResponseEntity<?> criar(@RequestBody Artigo artigo) {
+    return artigoService.criar(artigo);
+  }
 
   @PutMapping("/atualiza-artigo/{id}")
   public ResponseEntity<?> atualizarArtigo(@PathVariable("id") String id, @Valid @RequestBody Artigo artigo) {
@@ -63,6 +65,23 @@ public class ArtigoController {
   public Artigo obterArtigo(@PathVariable String codigo) {
     return artigoService.obterArtigo(codigo);
   }
+
+  // No MongoDB  Consigo utilizar somente com replicas sets ou clusters com sharding.
+//  @PostMapping
+//  public ResponseEntity<?> criarArtigoComAutor(@RequestBody ArtigoComAutoRequest request) {
+//
+//    Artigo artigo = request.getArtigo();
+//    Autor autor = request.getAutor();
+//
+//    return this.artigoService.criarArtigoComAutor(artigo,autor);
+//
+//  }
+
+  // No MongoDB  Consigo utilizar somente com replicas sets ou clusters com sharding.
+//  @DeleteMapping("delete-artigo-autor")
+//  public void excluirArtigoEAutor(@RequestBody Artigo artigo) {
+//    this.artigoService.excluirArtigoEAutor(artigo);
+//  }
 
   @GetMapping("/maiordata")
   public List<Artigo> findByDataGreaterThan(@RequestParam("data")LocalDateTime data) {
