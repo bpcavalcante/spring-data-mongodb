@@ -65,52 +65,71 @@ public class ArtigoServiceImpl implements ArtigoService {
         .orElseThrow(() -> new IllegalArgumentException("Artigo nao encontrado"));
   }
 
+  // No MongoDB  Consigo utilizar somente com replicas sets ou clusters com sharding.
+//  @Override
+//  public ResponseEntity<?> criarArtigoComAutor(Artigo artigo, Autor autor) {
+//    // Quando implemento desta forma nao preciso do @Transaction
+//    // Fazemos desta maneira ou eu uso o @Transaction
+//    TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+//    transactionTemplate.execute(
+//        status -> {
+//          try {
+//            // Iniciar a transacao
+//            autorRepository.save(autor);
+//            artigo.setData(LocalDateTime.now());
+//            artigo.setAutor(autor);
+//            artigoRepository.save(artigo);
+//          } catch (Exception e) {
+//            // Trata o erro e lançar a transação de volta em caso de exceção
+//            status.setRollbackOnly();
+//            throw new RuntimeException("Erro ao criar artigo com autor" + e.getMessage());
+//          }
+//          return null;
+//        }
+//    );
+//    return null;
+//  }
+
   @Override
-  public ResponseEntity<?> criarArtigoComAutor(Artigo artigo, Autor autor) {
-    // Quando implemento desta forma nao preciso do @Transaction
-    // Fazemos desta maneira ou eu uso o @Transaction
-    TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
-    transactionTemplate.execute(
-        status -> {
-          try {
-            // Iniciar a transacao
-            autorRepository.save(autor);
-            artigo.setData(LocalDateTime.now());
-            artigo.setAutor(autor);
-            artigoRepository.save(artigo);
-          } catch (Exception e) {
-            // Trata o erro e lançar a transação de volta em caso de exceção
-            status.setRollbackOnly();
-            throw new RuntimeException("Erro ao criar artigo com autor" + e.getMessage());
-          }
-          return null;
-        }
-    );
-    return null;
+  public ResponseEntity<?> criar(Artigo artigo) {
+
+    if (artigo.getAutor().getCodigo() != null) {
+      Autor autor = autorRepository.findById(artigo.getAutor().getCodigo())
+          .orElseThrow(() -> new IllegalArgumentException("Autor nao encontrado"));
+
+      artigo.setAutor(autor);
+    } else {
+      artigo.setAutor(null);
+    }
+
+    try {
+      this.artigoRepository.save(artigo);
+      return ResponseEntity.status(HttpStatus.CREATED).build();
+    } catch (DuplicateKeyException ex) {
+      return ResponseEntity.status(HttpStatus.CONFLICT).body("Artigo já existe na coleção");
+    } catch (Exception ex) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("Erro ao criar artigo" + ex.getMessage());
+    }
+
   }
 
+  // No MongoDB  Consigo utilizar somente com replicas sets ou clusters com sharding.
 //  @Override
-//  public ResponseEntity<?> criar(Artigo artigo) {
-//
-//    if (artigo.getAutor().getCodigo() != null) {
-//      Autor autor = autorRepository.findById(artigo.getAutor().getCodigo())
-//          .orElseThrow(() -> new IllegalArgumentException("Autor nao encontrado"));
-//
-//      artigo.setAutor(autor);
-//    } else {
-//      artigo.setAutor(null);
-//    }
-//
-//    try {
-//      this.artigoRepository.save(artigo);
-//      return ResponseEntity.status(HttpStatus.CREATED).build();
-//    } catch (DuplicateKeyException ex) {
-//      return ResponseEntity.status(HttpStatus.CONFLICT).body("Artigo já existe na coleção");
-//    } catch (Exception ex) {
-//      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//          .body("Erro ao criar artigo" + ex.getMessage());
-//    }
-//
+//  public void excluirArtigoEAutor(Artigo artigo) {
+//    TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+//    transactionTemplate.execute(status -> {
+//      try {
+//        artigoRepository.delete(artigo);
+//        Autor autor = artigo.getAutor();
+//        autorRepository.delete(autor);
+//      } catch (Exception ex){
+//        // Tratar o erro e lançar a transação de volta em caso de exceção
+//        status.setRollbackOnly();
+//        throw new RuntimeException("Erro ao excluir artigo e autor" + ex.getMessage());
+//      }
+//      return null;
+//    });
 //  }
 
   @Override
